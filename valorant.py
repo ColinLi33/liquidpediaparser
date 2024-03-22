@@ -33,11 +33,8 @@ def getRosterHistory(rosterDivs):
             for row in rows:
                 cells = row.find_all('td')
                 id = cells[0].text.strip()
-                # Remove parentheses from the name
                 name = re.sub(r'\(|\)', '', cells[2].text.strip())
-                # Remove square brackets and duplicate prefix from the join date
                 join_date = re.sub(r'\[.*\]', '', cells[4].text.strip()).replace("Join Date:", "")
-                # Remove square brackets and duplicate prefix from the leave date
                 leave_date = re.sub(r'\[.*\]', '', cells[5].text.strip()).replace("Leave Date:", "")
                 playerInfo = f"ID: {id}, Name: {name}, Join Date: {join_date}, Leave Date: {leave_date}"
                 rosterSet.add(playerInfo)
@@ -45,8 +42,6 @@ def getRosterHistory(rosterDivs):
     for playerInfo in rosterSet:
         print(playerInfo)    
         
-
-
 def getFirstPlaces(tableRows):
     print("\nFirst Places")
     for row in tableRows:
@@ -72,8 +67,6 @@ def getSTierEvents(tableRows):
                 placement = placementCell.text
                 print(f"Date: {date}, Tournament: {tournamentName}, Prize Winnings: {winnings}, Placement: {placement}")
         
-
-
 matchHistoryRows = getMatchHistoryRow(resultsSoup)
 rosterDivs = getRosterDivs(pageSoup)
 
