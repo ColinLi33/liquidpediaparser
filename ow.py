@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import re
 import csv
 
-pageURL = "https://liquipedia.net/valorant/Evil_Geniuses"
+pageURL = "https://liquipedia.net/overwatch/Evil_Geniuses"
 resultsURL = pageURL + "/Results"
 
 responseResults = requests.get(resultsURL)
@@ -20,7 +20,7 @@ def getMatchHistoryRow(soup):
     return rows
 
 def getRosterDivs(soup):
-    outerDiv = soup.select_one("div.tabs-dynamic:nth-child(13) > div:nth-child(2)")
+    outerDiv = soup.select_one("div.tabs-dynamic:nth-child(9) > div:nth-child(2)")
     rosterDivs = outerDiv.find_all('div')
     return rosterDivs
         
@@ -39,7 +39,7 @@ def getRosterHistory(rosterDivs):
                 leaveDate = re.sub(r'\[.*\]', '', cells[5].text.strip()).replace("Leave Date:", "").replace('\xa0', '').strip()
                 playerInfo = [id, name, joinDate, leaveDate]
                 rosterSet.add(tuple(playerInfo))
-    with open('./val/roster_history.csv', 'w', newline='') as file:
+    with open('./ow/roster_history.csv', 'w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         writer.writerow(["ID", "Name", "Join Date", "Leave Date"]) 
         for playerInfo in rosterSet:
@@ -57,7 +57,7 @@ def getFirstPlaces(tableRows):
             firstPlaceInfo = [date, tournamentName, winnings]
             firstPlaces.add(tuple(firstPlaceInfo))
 
-    with open('./val/first_places.csv', 'w', newline='') as file:
+    with open('./ow/first_places.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Date", "Tournament", "Prize Winnings"]) 
         for firstPlaceInfo in firstPlaces:
@@ -78,7 +78,7 @@ def getSTierEvents(tableRows):
                 sTierEventInfo = [date, tournamentName, winnings, placement]
                 sTierEvents.add(tuple(sTierEventInfo))
 
-    with open('./val/s_tier_events.csv', 'w', newline='') as file:
+    with open('./ow/s_tier_events.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Date", "Tournament", "Prize Winnings", "Placement"])
         for sTierEventInfo in sTierEvents:

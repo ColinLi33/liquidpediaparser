@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import re
 import csv
 
-pageURL = "https://liquipedia.net/valorant/Evil_Geniuses"
+pageURL = "https://liquipedia.net/teamfortress/Evil_Geniuses"
 resultsURL = pageURL + "/Results"
 
 responseResults = requests.get(resultsURL)
@@ -20,26 +20,23 @@ def getMatchHistoryRow(soup):
     return rows
 
 def getRosterDivs(soup):
-    outerDiv = soup.select_one("div.tabs-dynamic:nth-child(13) > div:nth-child(2)")
-    rosterDivs = outerDiv.find_all('div')
-    return rosterDivs
+    tableDiv = soup.select_one("div.table-responsive:nth-child(12)")
+    table = tableDiv.find("table")
+    tbody = table.find("tbody")
+    rows = tbody.find_all('tr', {"class": "Player"})
+    return rows
         
-def getRosterHistory(rosterDivs):
+def getRosterHistory(rosterRows):
     rosterSet = set()  
-    for div in rosterDivs:
-        rosterTables = div.find_all("table", {"class": "wikitable wikitable-striped roster-card"})
-        for table in rosterTables:
-            tbody = table.find('tbody')
-            rows = tbody.find_all('tr', {"class": "Player"})
-            for row in rows:
-                cells = row.find_all('td')
-                id = cells[0].text.strip()
-                name = re.sub(r'\(|\)', '', cells[2].text.strip())
-                joinDate = re.sub(r'\[.*\]', '', cells[4].text.strip()).replace("Join Date:", "").replace('\xa0', '').strip()
-                leaveDate = re.sub(r'\[.*\]', '', cells[5].text.strip()).replace("Leave Date:", "").replace('\xa0', '').strip()
-                playerInfo = [id, name, joinDate, leaveDate]
-                rosterSet.add(tuple(playerInfo))
-    with open('./val/roster_history.csv', 'w', newline='') as file:
+    for row in rosterRows:
+        cells = row.find_all('td')
+        id = cells[0].text.strip()
+        name = re.sub(r'\(|\)', '', cells[2].text.strip())
+        joinDate = re.sub(r'\[.*\]', '', cells[4].text.strip()).replace("Join Date:", "").replace('\xa0', '').strip()
+        leaveDate = re.sub(r'\[.*\]', '', cells[5].text.strip()).replace("Leave Date:", "").replace('\xa0', '').strip()
+        playerInfo = [id, name, joinDate, leaveDate]
+        rosterSet.add(tuple(playerInfo))
+    with open('./teamfortress/roster_history.csv', 'w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         writer.writerow(["ID", "Name", "Join Date", "Leave Date"]) 
         for playerInfo in rosterSet:
@@ -57,7 +54,7 @@ def getFirstPlaces(tableRows):
             firstPlaceInfo = [date, tournamentName, winnings]
             firstPlaces.add(tuple(firstPlaceInfo))
 
-    with open('./val/first_places.csv', 'w', newline='') as file:
+    with open('./teamfortress/first_places.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Date", "Tournament", "Prize Winnings"]) 
         for firstPlaceInfo in firstPlaces:
@@ -78,7 +75,7 @@ def getSTierEvents(tableRows):
                 sTierEventInfo = [date, tournamentName, winnings, placement]
                 sTierEvents.add(tuple(sTierEventInfo))
 
-    with open('./val/s_tier_events.csv', 'w', newline='') as file:
+    with open('./teamfortress/s_tier_events.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Date", "Tournament", "Prize Winnings", "Placement"])
         for sTierEventInfo in sTierEvents:

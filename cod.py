@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 import re
 import csv
 
-pageURL = "https://liquipedia.net/valorant/Evil_Geniuses"
+pageURL = "https://liquipedia.net/callofduty/Evil_Geniuses"
 resultsURL = pageURL + "/Results"
 
 responseResults = requests.get(resultsURL)
@@ -20,7 +20,7 @@ def getMatchHistoryRow(soup):
     return rows
 
 def getRosterDivs(soup):
-    outerDiv = soup.select_one("div.tabs-dynamic:nth-child(13) > div:nth-child(2)")
+    outerDiv = soup.select_one("div.tabs-dynamic:nth-child(12) > div:nth-child(2)")
     rosterDivs = outerDiv.find_all('div')
     return rosterDivs
         
@@ -39,7 +39,7 @@ def getRosterHistory(rosterDivs):
                 leaveDate = re.sub(r'\[.*\]', '', cells[5].text.strip()).replace("Leave Date:", "").replace('\xa0', '').strip()
                 playerInfo = [id, name, joinDate, leaveDate]
                 rosterSet.add(tuple(playerInfo))
-    with open('./val/roster_history.csv', 'w', newline='') as file:
+    with open('./cod/roster_history.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["ID", "Name", "Join Date", "Leave Date"]) 
         for playerInfo in rosterSet:
@@ -52,12 +52,12 @@ def getFirstPlaces(tableRows):
         if firstPlaceCell is not None:
             cells = row.find_all('td')
             date = cells[0].text
-            tournamentName = cells[4].text
+            tournamentName = cells[5].text
             winnings = cells[-1].text
             firstPlaceInfo = [date, tournamentName, winnings]
             firstPlaces.add(tuple(firstPlaceInfo))
 
-    with open('./val/first_places.csv', 'w', newline='') as file:
+    with open('./cod/first_places.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Date", "Tournament", "Prize Winnings"]) 
         for firstPlaceInfo in firstPlaces:
@@ -72,13 +72,13 @@ def getSTierEvents(tableRows):
             date = cells[0].text
             placementCell = cells[1]
             if placementCell['data-sort-value'] in ["1", "2", "3"]:
-                tournamentName = cells[4].text
+                tournamentName = cells[5].text
                 winnings = cells[-1].text
                 placement = placementCell.text
                 sTierEventInfo = [date, tournamentName, winnings, placement]
                 sTierEvents.add(tuple(sTierEventInfo))
 
-    with open('./val/s_tier_events.csv', 'w', newline='') as file:
+    with open('./cod/s_tier_events.csv', 'w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(["Date", "Tournament", "Prize Winnings", "Placement"])
         for sTierEventInfo in sTierEvents:
